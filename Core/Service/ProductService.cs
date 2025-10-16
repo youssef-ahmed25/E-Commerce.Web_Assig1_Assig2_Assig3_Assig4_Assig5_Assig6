@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using DomainLayer.Contracts;
 using DomainLayer.Models;
+using Service.Specifications;
 using ServiceAbstraction;
+using Shared;
 using Shared.DataTransferObjects;
 using System;
 using System.Collections.Generic;
@@ -21,13 +23,24 @@ namespace Service
             return brandDtos;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        public async Task<PaginatedResult<ProductDto>> GetAllProductsAsync(ProductQueryParams queryParams)
         {
+            #region قديم
             //var repo = _unitOfWork.GetRepository<Product, int>();
-            var products = await _unitOfWork.GetRepository<Product, int>().GetAllAsync();
-            return _mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(products);
+            //var products = await _unitOfWork.GetRepository<Product, int>().GetAllAsync();
+            //return _mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(products); 
+            #endregion
+            var repo = _unitOfWork.GetRepository<Product, int>();
+            var specification = new ProductWithBrandAndTypeSpecification(queryParams);
+            var products = await repo.GetAllAsync(specification);
+            var productsDto= _mapper.Map<IEnumerable<Product>, IEnumerable<ProductDto>>(products);
+            var productsCount = productsDto.Count();
+            var CountSpec= new ProductCountSpecification(queryParams);
+            var totalCount = await repo.CountAsync(CountSpec);
+            return new PaginatedResult<ProductDto>( productsCount, queryParams.PageIndex, totalCount, productsDto);
 
         }
+        
 
         public async Task<IEnumerable<TypeDto>> GetAllTypesAsync()
         {
@@ -39,7 +52,8 @@ namespace Service
         public async Task<ProductDto?> GetProductByIdAsync(int id)
         {
             var repo = _unitOfWork.GetRepository<Product, int>();
-            var product = await repo.GetByIdAsync(id);
+            var specification = new ProductWithBrandAndTypeSpecification(id);
+            var product = await repo.GetByIdAsync(specification);
             if (product is null) return null;
             return _mapper.Map<Product, ProductDto>(product);
         }
