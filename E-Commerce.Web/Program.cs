@@ -33,6 +33,7 @@ namespace E_Commerce.Web
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddApplicationServices();
             builder.Services.AddWebApplicationServices();
+            builder.Services.AddJWTServices(builder.Configuration);
 
             #region Class infrastructureServiceRegistration
             //builder.Services.AddDbContext<StoreDbContext>(options =>
@@ -91,9 +92,11 @@ namespace E_Commerce.Web
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
-
             app.UseStaticFiles();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.MapControllers();
             #endregion
