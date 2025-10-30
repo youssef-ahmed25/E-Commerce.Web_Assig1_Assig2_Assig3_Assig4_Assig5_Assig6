@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace DomainLayer.Models
 {
-    public class BaseEntity<Tkey>
+    //public class BaseEntity<Tkey>
+    //{
+    //    public TKey Id { get; set; }
+    //}
+    public class BaseEntity<TKey>
     {
-        public int Id { get; set; }
+        public TKey Id { get; set; }
     }
 }
