@@ -15,7 +15,37 @@ namespace Service
         {
             Services.AddAutoMapper(config => config.AddProfile(new ProductProfile()), typeof(Service.AssemblyReference).Assembly);
 
-            Services.AddScoped<IServiceManager, ServiceManager>();
+            //Services.AddScoped<IServiceManager, ServiceManagerWithFactoryDelegate>();
+            //Services.AddScoped<IServiceManager, ServiceManager>();
+
+            Services.AddKeyedScoped<IServiceManager, ServiceManager>("Lazy");
+            Services.AddKeyedScoped<IServiceManager, ServiceManagerWithFactoryDelegate>("Factory");
+
+            Services.AddScoped<IProductService, ProductService>();
+            Services.AddScoped<Func<IProductService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IProductService>();
+            });
+
+            Services.AddScoped<IBasketServices, BasketService>();
+            Services.AddScoped<Func<IBasketServices>>(provider =>
+            {
+                return () => provider.GetRequiredService<IBasketServices>();
+            });
+
+            Services.AddScoped<IAuthenticationService, AuthenticationService>();
+            Services.AddScoped<Func<IAuthenticationService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IAuthenticationService>();
+            });
+
+            Services.AddScoped<IOrderService, OrderService>();
+            Services.AddScoped<Func<IOrderService>>(provider =>
+            {
+                return () => provider.GetRequiredService<IOrderService>();
+            });
+
+            Services.AddScoped<ICacheService, CacheService>();
 
             return Services;
         }
